@@ -5,6 +5,7 @@ import com.marktech.task_management_system.model.Task;
 import com.marktech.task_management_system.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +29,8 @@ public class TaskService {
                 .body(repository.save(task));
     }
 
-    public ResponseEntity<String> updateTask(Task task, int id){
+    @CachePut(cacheNames = "task",key = "#id")
+    public Task updateTask(Task task, int id){
         Optional<Task> optional =repository.findById(id);
         if(optional.isPresent()){
             Task taskDb = optional.get();
@@ -36,13 +38,12 @@ public class TaskService {
             taskDb.setStatus(task.getStatus());
             taskDb.setPriority(task.getPriority());
             taskDb.setTitle(task.getTitle());
-            repository.save(taskDb);
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Task Update Successfull");
+            return repository.save(taskDb);
+
         }
         throw new TaskNotFoundException("Task Not Found");
     }
 
-    @Cacheable(value = "tasks")
     public Page<Task> getAllTask(int page, int limit) {
 
         Pageable pageable = PageRequest.of(page,limit);

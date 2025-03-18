@@ -4,6 +4,7 @@ import com.marktech.task_management_system.model.Task;
 import com.marktech.task_management_system.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,8 @@ public class TaskController {
 
     @PutMapping("/api/update-task/{id}")
     public ResponseEntity<String> updateTask(@RequestBody Task task, @PathVariable(name = "id") int id){
-        return service.updateTask(task,id);
+         service.updateTask(task,id);
+         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Task Update Successfull");
     }
 
     @GetMapping("/api/task/{id}")
